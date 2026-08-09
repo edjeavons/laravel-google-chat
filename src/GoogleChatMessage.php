@@ -103,6 +103,14 @@ class GoogleChatMessage implements Arrayable
     }
 
     /**
+     * Append GitHub-Flavoured Markdown converted to Google Chat text formatting.
+     */
+    public function markdown(string $message): static
+    {
+        return $this->text(GoogleChatMarkdown::convert($message));
+    }
+
+    /**
      * Append simple text content on a new line.
      */
     public function line(string $message): static

@@ -4,6 +4,7 @@ namespace NotificationChannels\GoogleChat\Tests;
 
 use NotificationChannels\GoogleChat\Card;
 use NotificationChannels\GoogleChat\Exceptions\CouldNotSendNotification;
+use NotificationChannels\GoogleChat\GoogleChatMarkdown;
 use NotificationChannels\GoogleChat\GoogleChatMessage;
 
 class GoogleChatMessageTest extends TestCase
@@ -34,6 +35,74 @@ class GoogleChatMessageTest extends TestCase
             ],
             $message->toArray()
         );
+    }
+
+    public function test_it_converts_github_flavoured_markdown()
+    {
+        $markdown = <<<'MARKDOWN'
+## Release notes
+
+**Ready** for _production_ with ~~no known issues~~.
+
+- [x] Tests pass
+- [ ] Deploy
+
+1. Create the release
+2. Notify the team
+
+> Review [the merge request](https://example.com/merge_requests/1).
+
+```php
+return true;
+```
+MARKDOWN;
+
+        $this->assertSame(<<<'CHAT'
+*Release notes*
+
+*Ready* for _production_ with ~no known issues~.
+
+* [x] Tests pass
+* [ ] Deploy
+
+1. Create the release
+2. Notify the team
+
+> Review <https://example.com/merge_requests/1|the merge request>.
+
+```
+return true;
+```
+CHAT, GoogleChatMarkdown::convert($markdown));
+    }
+
+    public function test_it_converts_tables_images_and_raw_html_to_readable_text()
+    {
+        $markdown = <<<'MARKDOWN'
+| Name | Status |
+| --- | --- |
+| API | Ready |
+
+![Architecture](https://example.com/architecture.png)
+
+<mark>Highlighted</mark>
+MARKDOWN;
+
+        $this->assertSame(<<<'CHAT'
+Name | Status
+API | Ready
+
+Architecture (https://example.com/architecture.png)
+
+Highlighted
+CHAT, GoogleChatMarkdown::convert($markdown));
+    }
+
+    public function test_it_appends_converted_markdown()
+    {
+        $message = GoogleChatMessage::create('Merged: ')->markdown('**Ready**');
+
+        $this->assertSame(['text' => 'Merged: *Ready*'], $message->toArray());
     }
 
     public function test_it_creates_lines()
