@@ -165,6 +165,14 @@ class Section implements Arrayable
     }
 
     /**
+     * Add a Carousel widget.
+     */
+    public function carousel(Widgets\Carousel $carousel): Section
+    {
+        return $this->widget($carousel);
+    }
+
+    /**
      * Serialize the section to an array representation.
      */
     public function toArray(): array
