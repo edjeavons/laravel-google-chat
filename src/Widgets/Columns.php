@@ -5,6 +5,7 @@ namespace NotificationChannels\GoogleChat\Widgets;
 use Closure;
 use NotificationChannels\GoogleChat\Enums\HorizontalAlignment;
 use NotificationChannels\GoogleChat\Enums\HorizontalSizeStyle;
+use NotificationChannels\GoogleChat\Enums\VerticalAlignment;
 
 class Columns extends AbstractWidget
 {
@@ -24,6 +25,7 @@ class Columns extends AbstractWidget
         array|Closure $widgets,
         HorizontalSizeStyle|string|null $horizontalSizeStyle = null,
         HorizontalAlignment|string|null $horizontalAlignment = null,
+        VerticalAlignment|string|null $verticalAlignment = null,
     ): static {
         if ($widgets instanceof Closure) {
             $columnBuilder = new class
@@ -59,6 +61,12 @@ class Columns extends AbstractWidget
             $column['horizontalAlignment'] = $horizontalAlignment instanceof HorizontalAlignment
                 ? $horizontalAlignment->value
                 : $horizontalAlignment;
+        }
+
+        if ($verticalAlignment !== null) {
+            $column['verticalAlignment'] = $verticalAlignment instanceof VerticalAlignment
+                ? $verticalAlignment->value
+                : $verticalAlignment;
         }
 
         $this->columnItems[] = $column;

@@ -37,6 +37,18 @@ class TextParagraphTest extends TestCase
         );
     }
 
+    public function test_it_can_limit_displayed_lines(): void
+    {
+        $widget = TextParagraph::create('Example Text')->maxLines(2);
+
+        $this->assertEquals([
+            'textParagraph' => [
+                'text' => 'Example Text',
+                'maxLines' => 2,
+            ],
+        ], $widget->toArray());
+    }
+
     public function test_it_creates_bold_text()
     {
         $widget = TextParagraph::create()->bold('Bold Text');

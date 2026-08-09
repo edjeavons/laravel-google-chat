@@ -5,6 +5,7 @@ namespace NotificationChannels\GoogleChat\Tests\Widgets;
 use NotificationChannels\GoogleChat\Components\Button;
 use NotificationChannels\GoogleChat\Enums\HorizontalAlignment;
 use NotificationChannels\GoogleChat\Enums\HorizontalSizeStyle;
+use NotificationChannels\GoogleChat\Enums\VerticalAlignment;
 use NotificationChannels\GoogleChat\Tests\TestCase;
 use NotificationChannels\GoogleChat\Widgets\ButtonList;
 use NotificationChannels\GoogleChat\Widgets\Columns;
@@ -17,6 +18,7 @@ class ColumnsTest extends TestCase
             [ButtonList::make(Button::text('Continue'))],
             HorizontalSizeStyle::FILL_AVAILABLE_SPACE,
             HorizontalAlignment::END,
+            VerticalAlignment::CENTER,
         );
 
         $this->assertEquals([
@@ -34,6 +36,7 @@ class ColumnsTest extends TestCase
                         ],
                         'horizontalSizeStyle' => 'FILL_AVAILABLE_SPACE',
                         'horizontalAlignment' => 'END',
+                        'verticalAlignment' => 'CENTER',
                     ],
                 ],
             ],

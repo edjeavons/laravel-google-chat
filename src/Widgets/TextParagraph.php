@@ -15,6 +15,16 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
+     * Limit the number of displayed lines.
+     */
+    public function maxLines(int $maxLines): static
+    {
+        $this->payload['maxLines'] = $maxLines;
+
+        return $this;
+    }
+
+    /**
      * Append bold text content.
      */
     public function bold(string $message): TextParagraph

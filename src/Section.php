@@ -58,6 +58,30 @@ class Section implements Arrayable
     }
 
     /**
+     * Configure the buttons displayed when the section is expanded or collapsed.
+     */
+    public function collapseControl(
+        Components\Button $collapseButton,
+        Components\Button $expandButton,
+        Enums\HorizontalAlignment|string|null $horizontalAlignment = null,
+    ): static {
+        $collapseControl = [
+            'collapseButton' => $collapseButton->toArray(),
+            'expandButton' => $expandButton->toArray(),
+        ];
+
+        if ($horizontalAlignment !== null) {
+            $collapseControl['horizontalAlignment'] = $horizontalAlignment instanceof Enums\HorizontalAlignment
+                ? $horizontalAlignment->value
+                : $horizontalAlignment;
+        }
+
+        $this->payload['collapseControl'] = $collapseControl;
+
+        return $this;
+    }
+
+    /**
      * Add a DecoratedText widget.
      */
     public function decoratedText(Widgets\DecoratedText|string $text, ?string $topLabel = null, Enums\Icon|Components\MaterialIcon|string|null $startIcon = null): static

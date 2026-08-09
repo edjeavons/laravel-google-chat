@@ -97,6 +97,27 @@ class Button implements Arrayable
     }
 
     /**
+     * Display an overflow menu instead of a direct click action.
+     */
+    public function overflowMenu(OverflowMenuItem|array $items): static
+    {
+        if ($items instanceof OverflowMenuItem) {
+            $items = [$items];
+        }
+
+        $this->payload['onClick'] = [
+            'overflowMenu' => [
+                'items' => array_map(
+                    fn ($item) => $item instanceof OverflowMenuItem ? $item->toArray() : $item,
+                    $items,
+                ),
+            ],
+        ];
+
+        return $this;
+    }
+
+    /**
      * Set the visual type of the button.
      */
     public function type(ButtonType|string $type): static
@@ -139,19 +160,27 @@ class Button implements Arrayable
     }
 
     /**
-     * Set the button colour using normalised RGB components.
+     * Set the button colour using normalised RGBA components.
      *
      * Google Chat renders coloured buttons as FILLED, regardless of their type.
      */
-    public function color(float $red, float $green, float $blue): static
+    public function color(float $red, float $green, float $blue, ?float $alpha = null): static
     {
-        foreach ([$red, $green, $blue] as $component) {
+        foreach ([$red, $green, $blue, $alpha] as $component) {
+            if ($component === null) {
+                continue;
+            }
+
             if ($component < 0 || $component > 1) {
                 throw new InvalidArgumentException('Button colour components must be between 0 and 1.');
             }
         }
 
         $this->payload['color'] = compact('red', 'green', 'blue');
+
+        if ($alpha !== null) {
+            $this->payload['color']['alpha'] = $alpha;
+        }
 
         return $this;
     }
