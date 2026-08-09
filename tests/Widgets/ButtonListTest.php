@@ -3,6 +3,7 @@
 namespace NotificationChannels\GoogleChat\Tests\Widgets;
 
 use NotificationChannels\GoogleChat\Components\Button;
+use NotificationChannels\GoogleChat\Components\MaterialIcon;
 use NotificationChannels\GoogleChat\Enums\ButtonType;
 use NotificationChannels\GoogleChat\Tests\TestCase;
 use NotificationChannels\GoogleChat\Widgets\ButtonList;
@@ -88,6 +89,21 @@ class ButtonListTest extends TestCase
                 'altText' => 'Invite a team member',
             ],
             'altText' => 'Opens the invitation form',
+        ], $button->toArray());
+    }
+
+    public function test_it_formats_material_icons(): void
+    {
+        $button = Button::text('Settings')
+            ->icon(MaterialIcon::make('settings'))
+            ->iconAltText('Open settings');
+
+        $this->assertEquals([
+            'text' => 'Settings',
+            'icon' => [
+                'materialIcon' => ['name' => 'settings'],
+                'altText' => 'Open settings',
+            ],
         ], $button->toArray());
     }
 }

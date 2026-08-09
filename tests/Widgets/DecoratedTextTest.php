@@ -3,6 +3,7 @@
 namespace NotificationChannels\GoogleChat\Tests\Widgets;
 
 use NotificationChannels\GoogleChat\Components\Button;
+use NotificationChannels\GoogleChat\Components\MaterialIcon;
 use NotificationChannels\GoogleChat\Enums\Icon;
 use NotificationChannels\GoogleChat\Tests\TestCase;
 use NotificationChannels\GoogleChat\Widgets\DecoratedText;
@@ -52,6 +53,28 @@ class DecoratedTextTest extends TestCase
                         'openLink' => [
                             'url' => 'https://example.com/btn',
                         ],
+                    ],
+                ],
+            ],
+        ], $widget->toArray());
+    }
+
+    public function test_it_formats_material_icons(): void
+    {
+        $widget = DecoratedText::make('Settings')
+            ->startIcon(MaterialIcon::make('settings'))
+            ->endIcon(MaterialIcon::make('arrow_forward')->weight(700));
+
+        $this->assertEquals([
+            'decoratedText' => [
+                'text' => 'Settings',
+                'startIcon' => [
+                    'materialIcon' => ['name' => 'settings'],
+                ],
+                'endIcon' => [
+                    'materialIcon' => [
+                        'name' => 'arrow_forward',
+                        'weight' => 700,
                     ],
                 ],
             ],

@@ -40,10 +40,12 @@ class Button implements Arrayable
         return $this;
     }
 
-    public function icon(Icon|string $icon): static
+    public function icon(Icon|MaterialIcon|string $icon): static
     {
         if ($icon instanceof Icon) {
             $this->payload['icon'] = ['knownIcon' => $icon->value];
+        } elseif ($icon instanceof MaterialIcon) {
+            $this->payload['icon'] = $icon->toArray();
         } elseif (str_starts_with($icon, 'http://') || str_starts_with($icon, 'https://')) {
             $this->payload['icon'] = ['iconUrl' => $icon];
         } else {

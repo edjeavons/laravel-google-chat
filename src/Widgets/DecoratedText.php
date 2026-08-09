@@ -3,6 +3,7 @@
 namespace NotificationChannels\GoogleChat\Widgets;
 
 use NotificationChannels\GoogleChat\Components\Button;
+use NotificationChannels\GoogleChat\Components\MaterialIcon;
 use NotificationChannels\GoogleChat\Enums\Icon;
 
 class DecoratedText extends AbstractWidget
@@ -52,11 +53,13 @@ class DecoratedText extends AbstractWidget
         return $this;
     }
 
-    public function startIcon(Icon|string $icon): static
+    public function startIcon(Icon|MaterialIcon|string $icon): static
     {
         if ($icon instanceof Icon) {
             $this->payload['startIcon'] = ['knownIcon' => $icon->value];
-        } elseif (is_string($icon) && (str_starts_with($icon, 'http://') || str_starts_with($icon, 'https://'))) {
+        } elseif ($icon instanceof MaterialIcon) {
+            $this->payload['startIcon'] = $icon->toArray();
+        } elseif (str_starts_with($icon, 'http://') || str_starts_with($icon, 'https://')) {
             $this->payload['startIcon'] = ['iconUrl' => $icon];
         } else {
             $this->payload['startIcon'] = ['knownIcon' => (string) $icon];
@@ -65,11 +68,13 @@ class DecoratedText extends AbstractWidget
         return $this;
     }
 
-    public function endIcon(Icon|string $icon): static
+    public function endIcon(Icon|MaterialIcon|string $icon): static
     {
         if ($icon instanceof Icon) {
             $this->payload['endIcon'] = ['knownIcon' => $icon->value];
-        } elseif (is_string($icon) && (str_starts_with($icon, 'http://') || str_starts_with($icon, 'https://'))) {
+        } elseif ($icon instanceof MaterialIcon) {
+            $this->payload['endIcon'] = $icon->toArray();
+        } elseif (str_starts_with($icon, 'http://') || str_starts_with($icon, 'https://')) {
             $this->payload['endIcon'] = ['iconUrl' => $icon];
         } else {
             $this->payload['endIcon'] = ['knownIcon' => (string) $icon];

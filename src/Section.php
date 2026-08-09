@@ -60,7 +60,7 @@ class Section implements Arrayable
     /**
      * Add a DecoratedText widget.
      */
-    public function decoratedText(Widgets\DecoratedText|string $text, ?string $topLabel = null, Enums\Icon|string|null $startIcon = null): static
+    public function decoratedText(Widgets\DecoratedText|string $text, ?string $topLabel = null, Enums\Icon|Components\MaterialIcon|string|null $startIcon = null): static
     {
         if ($text instanceof Widgets\DecoratedText) {
             return $this->widget($text);
