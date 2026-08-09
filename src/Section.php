@@ -157,6 +157,14 @@ class Section implements Arrayable
     }
 
     /**
+     * Add a Grid widget.
+     */
+    public function grid(Widgets\Grid $grid): Section
+    {
+        return $this->widget($grid);
+    }
+
+    /**
      * Serialize the section to an array representation.
      */
     public function toArray(): array
