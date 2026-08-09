@@ -6,7 +6,7 @@ Maintained by [eighteen73](https://eighteen73.co.uk).
 
 ## Key Features
 
-* **Rich Cards v2 Engine:** Full support for interactive Google Chat Cards v2 with headers, sections, `DecoratedText`, `ButtonList`, `Divider`, `Columns`, and `FixedFooter`.
+* **Rich Cards v2 Engine:** Full support for interactive Google Chat Cards v2 with headers, sections, `DecoratedText`, `ButtonList`, `Divider`, and `Columns`.
 * **Pluggable Transports:** Send notifications via lightweight space **Incoming Webhooks** or Google Cloud **Service Accounts**.
 * **Message Updates & Patching:** Update previously posted card messages dynamically using the Service Account transport.
 * **Thread Management:** Reply directly into existing threads using thread keys or message resource names.
@@ -113,4 +113,3 @@ If you discover any security related issues, please email us or use the issue tr
 ## License
 
 The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
-

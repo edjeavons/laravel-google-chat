@@ -107,16 +107,6 @@ class Card implements Arrayable
     }
 
     /**
-     * Set sticky bottom action buttons for the card.
-     */
-    public function fixedFooter(Components\FixedFooter $footer): static
-    {
-        $this->payload['fixedFooter'] = $footer->toArray();
-
-        return $this;
-    }
-
-    /**
      * Add card action items to the card's overflow menu.
      *
      * @param  Components\CardAction|Components\CardAction[]  $cardActions
