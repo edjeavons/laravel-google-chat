@@ -2,6 +2,7 @@
 
 namespace NotificationChannels\GoogleChat\Tests;
 
+use NotificationChannels\GoogleChat\Components\Chip;
 use NotificationChannels\GoogleChat\Exceptions\CouldNotSendNotification;
 use NotificationChannels\GoogleChat\Section;
 use NotificationChannels\GoogleChat\Widgets\TextParagraph;
@@ -48,5 +49,22 @@ class SectionTest extends TestCase
             ],
             $section->toArray()
         );
+    }
+
+    public function test_it_can_add_chip_lists(): void
+    {
+        $section = Section::create()->chipList(Chip::label('New'));
+
+        $this->assertEquals([
+            'widgets' => [
+                [
+                    'chipList' => [
+                        'chips' => [
+                            ['label' => 'New'],
+                        ],
+                    ],
+                ],
+            ],
+        ], $section->toArray());
     }
 }

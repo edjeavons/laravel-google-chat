@@ -96,6 +96,16 @@ class Section implements Arrayable
     }
 
     /**
+     * Add a ChipList widget.
+     */
+    public function chipList(Components\Chip|array $chips): static
+    {
+        $this->widget(Widgets\ChipList::make($chips));
+
+        return $this;
+    }
+
+    /**
      * Add a Columns widget.
      */
     public function columns(array|\Closure $widgets): static
