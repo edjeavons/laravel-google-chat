@@ -3,6 +3,8 @@
 namespace NotificationChannels\GoogleChat\Widgets;
 
 use Closure;
+use NotificationChannels\GoogleChat\Enums\HorizontalAlignment;
+use NotificationChannels\GoogleChat\Enums\HorizontalSizeStyle;
 
 class Columns extends AbstractWidget
 {
@@ -18,8 +20,11 @@ class Columns extends AbstractWidget
         return new static;
     }
 
-    public function column(array|Closure $widgets): static
-    {
+    public function column(
+        array|Closure $widgets,
+        HorizontalSizeStyle|string|null $horizontalSizeStyle = null,
+        HorizontalAlignment|string|null $horizontalAlignment = null,
+    ): static {
         if ($widgets instanceof Closure) {
             $columnBuilder = new class
             {
@@ -40,9 +45,23 @@ class Columns extends AbstractWidget
             }, $widgets);
         }
 
-        $this->columnItems[] = [
+        $column = [
             'widgets' => $widgetsList,
         ];
+
+        if ($horizontalSizeStyle !== null) {
+            $column['horizontalSizeStyle'] = $horizontalSizeStyle instanceof HorizontalSizeStyle
+                ? $horizontalSizeStyle->value
+                : $horizontalSizeStyle;
+        }
+
+        if ($horizontalAlignment !== null) {
+            $column['horizontalAlignment'] = $horizontalAlignment instanceof HorizontalAlignment
+                ? $horizontalAlignment->value
+                : $horizontalAlignment;
+        }
+
+        $this->columnItems[] = $column;
 
         return $this;
     }
