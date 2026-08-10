@@ -62,8 +62,8 @@ MARKDOWN;
 
 *Ready* for _production_ with ~no known issues~.
 
-- [x] Tests pass
-- [ ] Deploy
+* [x] Tests pass
+* [ ] Deploy
 
 1. Create the release
 2. Notify the team

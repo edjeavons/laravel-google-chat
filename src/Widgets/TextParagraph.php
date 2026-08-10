@@ -2,6 +2,8 @@
 
 namespace NotificationChannels\GoogleChat\Widgets;
 
+use NotificationChannels\GoogleChat\Enums\TextSyntax;
+
 class TextParagraph extends AbstractWidget
 {
     /**
@@ -15,11 +17,24 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append GitHub-Flavoured Markdown converted to Google Chat text formatting.
+     * Set the text rendering syntax (HTML or MARKDOWN).
+     */
+    public function textSyntax(TextSyntax|string $textSyntax): static
+    {
+        $this->payload['textSyntax'] = $textSyntax instanceof TextSyntax ? $textSyntax->value : $textSyntax;
+
+        return $this;
+    }
+
+    /**
+     * Append Markdown content and set textSyntax to MARKDOWN.
      */
     public function markdown(string $message): static
     {
-        return $this->text(\NotificationChannels\GoogleChat\GoogleChatMarkdown::convert($message));
+        $this->text($message);
+        $this->textSyntax(TextSyntax::MARKDOWN);
+
+        return $this;
     }
 
     /**

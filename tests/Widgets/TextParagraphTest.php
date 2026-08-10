@@ -169,14 +169,15 @@ class TextParagraphTest extends TestCase
         );
     }
 
-    public function test_it_appends_converted_markdown()
+    public function test_it_appends_markdown_with_markdown_text_syntax()
     {
         $widget = TextParagraph::create()->markdown('* **Feature:** Add new item');
 
         $this->assertEquals(
             [
                 'textParagraph' => [
-                    'text' => '- *Feature:* Add new item',
+                    'text' => '* **Feature:** Add new item',
+                    'textSyntax' => 'MARKDOWN',
                 ],
             ],
             $widget->toArray()
