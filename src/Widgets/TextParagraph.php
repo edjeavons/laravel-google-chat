@@ -15,6 +15,14 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
+     * Append GitHub-Flavoured Markdown converted to Google Chat text formatting.
+     */
+    public function markdown(string $message): static
+    {
+        return $this->text(\NotificationChannels\GoogleChat\GoogleChatMarkdown::convert($message));
+    }
+
+    /**
      * Limit the number of displayed lines.
      */
     public function maxLines(int $maxLines): static
