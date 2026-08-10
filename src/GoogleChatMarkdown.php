@@ -154,7 +154,7 @@ class GoogleChatMarkdown
                     : $this->render($child, $depth + 1);
             }
 
-            $prefix = $list->getListData()->type === ListBlock::TYPE_BULLET ? '* ' : $number++.'. ';
+            $prefix = $list->getListData()->type === ListBlock::TYPE_BULLET ? '- ' : $number++.'. ';
             $lines = explode("\n", implode("\n", array_filter($content)));
             $indent = str_repeat('    ', $depth);
             $items[] = $indent.$prefix.ltrim((string) array_shift($lines));
