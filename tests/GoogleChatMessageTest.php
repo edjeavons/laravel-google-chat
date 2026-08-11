@@ -37,6 +37,16 @@ class GoogleChatMessageTest extends TestCase
         );
     }
 
+    public function test_it_sets_fallback_text()
+    {
+        $message = GoogleChatMessage::create()->fallbackText('Server alert: CPU utilisation is 94%.');
+
+        $this->assertSame(
+            ['fallbackText' => 'Server alert: CPU utilisation is 94%.'],
+            $message->toArray()
+        );
+    }
+
     public function test_it_converts_github_flavoured_markdown()
     {
         $markdown = <<<'MARKDOWN'

@@ -103,6 +103,16 @@ class GoogleChatMessage implements Arrayable
     }
 
     /**
+     * Set the plain-text description used when cards cannot be displayed.
+     */
+    public function fallbackText(string $text): static
+    {
+        $this->payload['fallbackText'] = $text;
+
+        return $this;
+    }
+
+    /**
      * Append GitHub-Flavoured Markdown converted to Google Chat text formatting.
      */
     public function markdown(string $message): static
