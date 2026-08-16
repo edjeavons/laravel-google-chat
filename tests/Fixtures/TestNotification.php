@@ -10,19 +10,19 @@ class TestNotification extends Notification
 {
     private $space;
 
-    public function setSpace(string $space)
+    public function setSpace(string $space): self
     {
         $this->space = $space;
 
         return $this;
     }
 
-    public function via($notifiable)
+    public function via(mixed $notifiable): array
     {
         return [GoogleChatChannel::class];
     }
 
-    public function toGoogleChat($notifiable)
+    public function toGoogleChat(mixed $notifiable)
     {
         $message = GoogleChatMessage::create('Example Message');
 

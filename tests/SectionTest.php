@@ -2,6 +2,9 @@
 
 namespace NotificationChannels\GoogleChat\Tests;
 
+use NotificationChannels\GoogleChat\Components\Button;
+use NotificationChannels\GoogleChat\Components\Chip;
+use NotificationChannels\GoogleChat\Enums\HorizontalAlignment;
 use NotificationChannels\GoogleChat\Exceptions\CouldNotSendNotification;
 use NotificationChannels\GoogleChat\Section;
 use NotificationChannels\GoogleChat\Widgets\TextParagraph;
@@ -39,10 +42,53 @@ class SectionTest extends TestCase
         $this->assertEquals(
             [
                 'widgets' => [
-                    $widget,
+                    [
+                        'textParagraph' => [
+                            'text' => 'Text content',
+                        ],
+                    ],
                 ],
             ],
             $section->toArray()
         );
+    }
+
+    public function test_it_can_add_chip_lists(): void
+    {
+        $section = Section::create()->chipList(Chip::label('New'));
+
+        $this->assertEquals([
+            'widgets' => [
+                [
+                    'chipList' => [
+                        'chips' => [
+                            ['label' => 'New'],
+                        ],
+                    ],
+                ],
+            ],
+        ], $section->toArray());
+    }
+
+    public function test_it_can_configure_a_collapse_control(): void
+    {
+        $section = Section::create()
+            ->collapsible()
+            ->collapseControl(
+                Button::text('Hide')->borderless(),
+                Button::text('Show')->borderless(),
+                HorizontalAlignment::CENTER,
+            );
+
+        $this->assertEquals([
+            'widgets' => [],
+            'collapsible' => true,
+            'uncollapsibleWidgetsCount' => 1,
+            'collapseControl' => [
+                'collapseButton' => ['text' => 'Hide', 'type' => 'BORDERLESS'],
+                'expandButton' => ['text' => 'Show', 'type' => 'BORDERLESS'],
+                'horizontalAlignment' => 'CENTER',
+            ],
+        ], $section->toArray());
     }
 }

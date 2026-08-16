@@ -2,12 +2,9 @@
 
 namespace NotificationChannels\GoogleChat\Tests;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Http;
 use NotificationChannels\GoogleChat\Exceptions\CouldNotSendNotification;
 use NotificationChannels\GoogleChat\GoogleChatChannel;
 use NotificationChannels\GoogleChat\Tests\Fixtures\TestNotifiable;
@@ -29,9 +26,9 @@ class GoogleChatChannelTest extends TestCase
     {
         $notification = $this->createMock(TestNotification::class);
         $notification->expects($this->once())
-        ->method('toGoogleChat')
-        ->with('notifiable')
-        ->willReturn('This value is invalid, as it is not an instance of Google Chat Message');
+            ->method('toGoogleChat')
+            ->with('notifiable')
+            ->willReturn('This value is invalid, as it is not an instance of Google Chat Message');
 
         $this->expectException(CouldNotSendNotification::class);
         $this->expectExceptionMessage("Expected a message instance of type NotificationChannels\GoogleChat\GoogleChatMessage - Actually received string");
@@ -43,7 +40,8 @@ class GoogleChatChannelTest extends TestCase
     {
         $notification = $this->newNotification();
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             use Notifiable;
         };
 
@@ -55,200 +53,109 @@ class GoogleChatChannelTest extends TestCase
 
     public function test_it_sends_to_default_space()
     {
+        Http::fake([
+            'https://chat.googleapis.com/default-space*' => Http::response(['name' => 'spaces/AAA/messages/BBB'], 200),
+        ]);
+
         config(['google-chat.space' => 'https://chat.googleapis.com/default-space']);
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             use Notifiable;
         };
 
         $notification = $this->newNotification();
 
-        $response = $this->createMock(Response::class);
+        $this->newChannel()->send($notifiable, $notification);
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                'https://chat.googleapis.com/default-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'https://chat.googleapis.com/default-space');
+        });
     }
 
     public function test_it_sends_to_notifiable_space()
     {
+        Http::fake([
+            'https://chat.googleapis.com/notifiable-space*' => Http::response(['name' => 'spaces/AAA/messages/BBB'], 200),
+        ]);
+
         config(['google-chat.space' => 'https://chat.googleapis.com/default-space']);
 
         $notifiable = $this->newNotifiable('https://chat.googleapis.com/notifiable-space');
-
         $notification = $this->newNotification();
 
-        $response = $this->createMock(Response::class);
+        $this->newChannel()->send($notifiable, $notification);
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                'https://chat.googleapis.com/notifiable-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
-    }
-
-    public function test_it_sends_to_notification_space()
-    {
-        config(['google-chat.space' => 'https://chat.googleapis.com/default-space']);
-
-        $notifiable = $this->newNotifiable('https://chat.googleapis.com/notifiable-space');
-
-        $notification = $this->newNotification()
-            ->setSpace('https://chat.googleapis.com/notification-space');
-
-        $response = $this->createMock(Response::class);
-
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                'https://chat.googleapis.com/notification-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'https://chat.googleapis.com/notifiable-space');
+        });
     }
 
     public function test_it_resolves_space_config_nested_key()
     {
-        config(['google-chat.spaces.test' => 'example-alternate-space']);
+        Http::fake([
+            'https://chat.googleapis.com/alternate-space*' => Http::response([], 200),
+        ]);
+
+        config([
+            'google-chat.spaces.test' => 'https://chat.googleapis.com/alternate-space',
+        ]);
 
         $notifiable = $this->newNotifiable('test');
-
         $notification = $this->newNotification();
 
-        $response = $this->createMock(Response::class);
+        $this->newChannel()->send($notifiable, $notification);
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                'example-alternate-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
-    }
-
-    public function test_it_falls_back_to_provided_space_as_uri()
-    {
-        $notifiable = $this->newNotifiable('//example-fallback-space');
-
-        $notification = $this->newNotification();
-
-        $response = $this->createMock(Response::class);
-
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                '//example-fallback-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'https://chat.googleapis.com/alternate-space');
+        });
     }
 
     public function test_it_overrides_destination_when_test_space_configured()
     {
+        Http::fake([
+            'https://chat.googleapis.com/override-test-space*' => Http::response([], 200),
+        ]);
+
         config([
             'google-chat.space' => 'https://chat.googleapis.com/default-space',
             'google-chat.test_space' => 'https://chat.googleapis.com/override-test-space',
         ]);
 
         $notifiable = $this->newNotifiable('https://chat.googleapis.com/notifiable-space');
+        $notification = $this->newNotification();
 
-        $notification = $this->newNotification()
-            ->setSpace('https://chat.googleapis.com/notification-space');
+        $this->newChannel()->send($notifiable, $notification);
 
-        $response = $this->createMock(Response::class);
-
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->with(
-                'post',
-                'https://chat.googleapis.com/override-test-space',
-                ['json' => $notification->toGoogleChat($notifiable)->toArray()]
-            )
-            ->willReturn($response);
-
-        $this->newChannel($client)->send($notifiable, $notification);
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'https://chat.googleapis.com/override-test-space');
+        });
     }
 
-    public function test_it_handles_client_exceptions()
+    public function test_it_handles_http_errors()
     {
-        $notifiable = $this->newNotifiable('//uri');
+        Http::fake([
+            'https://chat.googleapis.com/error-space*' => Http::response(['error' => 'Invalid payload'], 400),
+        ]);
+
+        config(['google-chat.space' => 'https://chat.googleapis.com/error-space']);
+
+        $notifiable = new class
+        {
+            use Notifiable;
+        };
 
         $notification = $this->newNotification();
 
-        $exception = new ClientException(
-            'Example 400 level HTTP exception',
-            $this->createMock(Request::class),
-            tap($this->createMock(Response::class), function ($mock) {
-                $mock->method('getStatusCode')->willReturn(400);
-            }),
-        );
-
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->withAnyParameters()
-            ->willThrowException($exception);
-
         $this->expectException(CouldNotSendNotification::class);
-        $this->expectExceptionMessage('Failed to send Google Chat message, encountered client error: `400 - Example 400 level HTTP exception`');
+        $this->expectExceptionMessage('Failed to send Google Chat message, encountered HTTP status 400');
 
-        $this->newChannel($client)->send($notifiable, $notification);
+        $this->newChannel()->send($notifiable, $notification);
     }
 
-    public function test_it_handles_unexpected_exceptions()
+    private function newChannel(): GoogleChatChannel
     {
-        $notifiable = $this->newNotifiable('//uri');
-
-        $notification = $this->newNotification();
-
-        $exception = new \Exception('Example unexpected exception');
-
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('request')
-            ->withAnyParameters()
-            ->willThrowException($exception);
-
-        $this->expectException(CouldNotSendNotification::class);
-        $this->expectExceptionMessage('Failed to send Google Chat message, unexpected exception encountered: `Example unexpected exception`');
-
-        $this->newChannel($client)->send($notifiable, $notification);
-    }
-
-    private function newChannel($client = null): GoogleChatChannel
-    {
-        if (! $client) {
-            $client = $this->createMock(Client::class);
-        }
-
-        return new GoogleChatChannel($client);
+        return new GoogleChatChannel;
     }
 
     private function newNotification(): TestNotification

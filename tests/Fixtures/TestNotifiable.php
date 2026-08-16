@@ -8,14 +8,9 @@ class TestNotifiable
 {
     use Notifiable;
 
-    private $space;
+    public function __construct(private ?string $space = null) {}
 
-    public function __construct(string $space = null)
-    {
-        $this->space = $space;
-    }
-
-    public function routeNotificationForGoogleChat()
+    public function routeNotificationForGoogleChat(): ?string
     {
         return $this->space;
     }

@@ -16,20 +16,13 @@ abstract class AbstractWidget implements Arrayable
 
     /**
      * Serialize the widget to an array representation.
-     *
-     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
-        $widgetName = Str::of(
-            Str::of(get_called_class())
-                ->explode('\\')
-                ->last()
-        )
-        ->camel();
+        $widgetName = Str::camel(class_basename(static::class));
 
         return [
-            (string) $widgetName => $this->payload,
+            $widgetName => $this->payload,
         ];
     }
 }

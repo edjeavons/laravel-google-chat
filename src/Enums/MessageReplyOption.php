@@ -1,0 +1,10 @@
+<?php
+
+namespace NotificationChannels\GoogleChat\Enums;
+
+enum MessageReplyOption: string
+{
+    case REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD = 'REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD';
+    case REPLY_MESSAGE_OR_FAIL = 'REPLY_MESSAGE_OR_FAIL';
+    case MESSAGE_REPLY_OPTION_UNSPECIFIED = 'MESSAGE_REPLY_OPTION_UNSPECIFIED';
+}

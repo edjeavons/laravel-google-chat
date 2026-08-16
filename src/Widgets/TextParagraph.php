@@ -2,13 +2,13 @@
 
 namespace NotificationChannels\GoogleChat\Widgets;
 
+use NotificationChannels\GoogleChat\Enums\TextSyntax;
+use NotificationChannels\GoogleChat\GoogleChatCardMarkdown;
+
 class TextParagraph extends AbstractWidget
 {
     /**
      * Append text content to the widget.
-     *
-     * @param string $message
-     * @return self
      */
     public function text(string $message): TextParagraph
     {
@@ -18,10 +18,37 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append bold text context.
-     *
-     * @param string $message
-     * @return self
+     * Set the text rendering syntax (HTML or MARKDOWN).
+     */
+    public function textSyntax(TextSyntax|string $textSyntax): static
+    {
+        $this->payload['textSyntax'] = $textSyntax instanceof TextSyntax ? $textSyntax->value : $textSyntax;
+
+        return $this;
+    }
+
+    /**
+     * Append Markdown content converted to Google Chat card formatting.
+     */
+    public function markdown(string $message): static
+    {
+        $this->text(GoogleChatCardMarkdown::convert($message));
+
+        return $this;
+    }
+
+    /**
+     * Limit the number of displayed lines.
+     */
+    public function maxLines(int $maxLines): static
+    {
+        $this->payload['maxLines'] = $maxLines;
+
+        return $this;
+    }
+
+    /**
+     * Append bold text content.
      */
     public function bold(string $message): TextParagraph
     {
@@ -29,10 +56,7 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append italic text context.
-     *
-     * @param string $message
-     * @return self
+     * Append italic text content.
      */
     public function italic(string $message): TextParagraph
     {
@@ -40,10 +64,7 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append underline text context.
-     *
-     * @param string $message
-     * @return self
+     * Append underline text content.
      */
     public function underline(string $message): TextParagraph
     {
@@ -51,10 +72,7 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append strikethrough text context.
-     *
-     * @param string $message
-     * @return self
+     * Append strikethrough text content.
      */
     public function strikethrough(string $message): TextParagraph
     {
@@ -62,10 +80,7 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append strikethrough text context.
-     *
-     * @param string $message
-     * @return self
+     * Append strikethrough text content.
      */
     public function strike(string $message): TextParagraph
     {
@@ -73,11 +88,7 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append colored text context.
-     *
-     * @param string $message
-     * @param string $hex
-     * @return self
+     * Append colored text content.
      */
     public function color(string $message, string $hex): TextParagraph
     {
@@ -86,20 +97,14 @@ class TextParagraph extends AbstractWidget
 
     /**
      * Append a text link.
-     *
-     * @param string $link
-     * @param string|null $displayText
-     * @return self
      */
-    public function link(string $link, string $displayText = null): TextParagraph
+    public function link(string $link, ?string $displayText = null): TextParagraph
     {
         return $this->text("<a href=\"{$link}\">".($displayText ?? $link).'</a>');
     }
 
     /**
      * Append a line break.
-     *
-     * @return self
      */
     public function break(): TextParagraph
     {
@@ -108,11 +113,8 @@ class TextParagraph extends AbstractWidget
 
     /**
      * Return a new Text Paragraph widget instance.
-     *
-     * @param string|null $message
-     * @return self
      */
-    public static function create(string $message = null): TextParagraph
+    public static function create(?string $message = null): static
     {
         $widget = new static;
 
@@ -121,5 +123,13 @@ class TextParagraph extends AbstractWidget
         }
 
         return $widget;
+    }
+
+    /**
+     * Return a new Text Paragraph widget instance.
+     */
+    public static function make(?string $message = null): static
+    {
+        return static::create($message);
     }
 }

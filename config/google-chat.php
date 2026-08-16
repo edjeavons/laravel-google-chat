@@ -2,38 +2,42 @@
 
 return [
     /**
-     * Default Space Webhook Url.
+     * Notification Delivery Transport Driver.
      *
-     * This key defines the default space where Google Chat messages will be posted to. Of
-     * course, individual messages can be routed to a specific space using the
-     * `GoogleChatMessage::to()` method.
+     * Options: 'webhook' (Incoming Webhook URL) or 'service_account' (Google Chat REST API)
+     */
+    'driver' => env('GOOGLE_CHAT_DRIVER', 'webhook'),
+
+    /**
+     * Default Space Endpoint / Name.
      *
-     * If your application does not need a default space, you can leave this value as null.
+     * Defines the default space where Google Chat messages will be posted.
      */
     'space' => env('GOOGLE_CHAT_DEFAULT_SPACE', null),
 
     /**
      * Additional Spaces.
      *
-     * This key defines additional spaces which can be used as the argument in the
-     * `GoogleChatMessage::to({key})` method. For example, using the 'sales_team'
-     * example key below, we can direct an individual notification to that
-     * endpoint like:
-     *
-     * ````
-     * GoogleChatMessage::create('My Message')->to('sales_team');
-     * ````
+     * Named space shortcuts that can be passed to `GoogleChatMessage::to('sales_team')`.
      */
     'spaces' => [
-        // 'sales_team' => 'https://chat.googleapis.com/...'
+        // 'sales_team' => 'https://chat.googleapis.com/...',
     ],
 
     /**
-     * Test Space Webhook Url.
+     * Service Account Credentials (Required when driver is 'service_account').
      *
-     * When set, all messages will be redirected to this webhook URL regardless of
-     * the space defined on the notification or notifiable. This is useful during
-     * local development.
+     * 'credentials' specifies the path to a JSON key file, a JSON string, or array.
+     */
+    'service_account' => [
+        'credentials' => env('GOOGLE_CHAT_CREDENTIALS'),
+    ],
+
+    /**
+     * Test Space Webhook Url / Target.
+     *
+     * When set, all messages will be redirected to this target space regardless of
+     * notification or notifiable settings. Useful during development.
      */
     'test_space' => env('GOOGLE_CHAT_TEST_SPACE', null),
 ];

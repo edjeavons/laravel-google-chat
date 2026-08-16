@@ -9,17 +9,16 @@ trait ValidatesCardComponents
     /**
      * Ensure that the provided array contains only instances of the provided type, or
      * throw an exception otherwise.
-     *
-     * @return self
      */
     protected function guardOnlyInstancesOf(string $class, array $bucket): self
     {
         foreach ($bucket as $item) {
             if (! $item instanceof $class) {
-                $call = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+                $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+                $call = $trace[1] ?? [];
 
                 throw CouldNotSendNotification::invalidArgument(
-                    ($call['class'] ?? '').'::'.$call['function'].'()',
+                    ($call['class'] ?? '').'::'.($call['function'] ?? '').'()',
                     $class,
                     $item
                 );

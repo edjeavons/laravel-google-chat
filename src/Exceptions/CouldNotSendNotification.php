@@ -4,15 +4,16 @@ namespace NotificationChannels\GoogleChat\Exceptions;
 
 use Exception;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Http\Client\Response;
 use NotificationChannels\GoogleChat\GoogleChatMessage;
 
-class CouldNotSendNotification extends \Exception
+class CouldNotSendNotification extends Exception
 {
     /**
      * Thrown if a notification instance does not implement a toGoogleChat() method, but is
      * attempting to be delivered via the Google Chat notification channel.
      *
-     * @param mixed $notification
+     * @param  mixed  $notification
      * @return static
      */
     public static function undefinedMethod($notification)
@@ -27,7 +28,7 @@ class CouldNotSendNotification extends \Exception
      * Thrown if a notification instance's toGoogleChat() method returns a value other than
      * an instance of \NotificationChannels\GoogleChat\GoogleChatMessage.
      *
-     * @param mixed $actual
+     * @param  mixed  $actual
      * @return static
      */
     public static function invalidMessage($actual)
@@ -46,9 +47,9 @@ class CouldNotSendNotification extends \Exception
     /**
      * Thrown if a message could not be built to an invalid argument being passed.
      *
-     * @param string $method
-     * @param string $expected
-     * @param mixed $actual
+     * @param  string  $method
+     * @param  string  $expected
+     * @param  mixed  $actual
      * @return static
      */
     public static function invalidArgument($method, $expected, $actual)
@@ -86,7 +87,6 @@ class CouldNotSendNotification extends \Exception
      * Thrown if a 400-level Http error was encountered whilst attempting to deliver the
      * notification.
      *
-     * @param \GuzzleHttp\Exception\ClientException $exception
      * @return static
      */
     public static function clientError(ClientException $exception)
@@ -104,10 +104,22 @@ class CouldNotSendNotification extends \Exception
     }
 
     /**
+     * Thrown if Google Chat API or Webhook returns an error response.
+     *
+     * @param  Response  $response
+     * @return static
+     */
+    public static function serviceRespondedWithAnError($response)
+    {
+        return new static(
+            "Failed to send Google Chat message, encountered HTTP status {$response->status()}: {$response->body()}"
+        );
+    }
+
+    /**
      * Thrown if an unexpected exception was encountered whilst attempting to deliver the
      * notification.
      *
-     * @param \Exception $exception
      * @return static
      */
     public static function unexpectedException(Exception $exception)
@@ -116,6 +128,54 @@ class CouldNotSendNotification extends \Exception
             'Failed to send Google Chat message, unexpected exception encountered: `'.$exception->getMessage().'`',
             0,
             $exception
+        );
+    }
+
+    /**
+     * Thrown if service account credentials are missing.
+     *
+     * @return static
+     */
+    public static function missingCredentials()
+    {
+        return new static(
+            'Google Chat Service Account driver requires `credentials` (JSON file path, JSON string, or array) to be configured.'
+        );
+    }
+
+    /**
+     * Thrown if service account credentials could not be parsed or are missing required keys.
+     *
+     * @return static
+     */
+    public static function invalidCredentials()
+    {
+        return new static(
+            'Invalid Google Chat Service Account credentials. Expected a valid JSON key file, array, or JSON string containing `client_email` and `private_key`.'
+        );
+    }
+
+    /**
+     * Thrown if JWT signing fails with OpenSSL.
+     *
+     * @return static
+     */
+    public static function jwtSigningFailed()
+    {
+        return new static(
+            'Failed to sign OAuth 2.0 JWT assertion using the provided Service Account private key via OpenSSL.'
+        );
+    }
+
+    /**
+     * Thrown if Google OAuth endpoint returns an error when fetching access token.
+     *
+     * @return static
+     */
+    public static function tokenFetchFailed(Response $response)
+    {
+        return new static(
+            "Failed to fetch OAuth 2.0 access token from Google, HTTP status {$response->status()}: {$response->body()}"
         );
     }
 }

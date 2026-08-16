@@ -3,7 +3,7 @@
 namespace NotificationChannels\GoogleChat\Tests;
 
 use NotificationChannels\GoogleChat\Card;
-use NotificationChannels\GoogleChat\Enums\ImageStyle;
+use NotificationChannels\GoogleChat\Enums\ImageType;
 use NotificationChannels\GoogleChat\Exceptions\CouldNotSendNotification;
 use NotificationChannels\GoogleChat\Section;
 use stdClass;
@@ -17,7 +17,8 @@ class CardTest extends TestCase
                 'Header Title',
                 'Header Subtitle',
                 'Header Image URL',
-                ImageStyle::SQUARE
+                ImageType::CIRCLE,
+                'Avatar'
             );
 
         $this->assertEquals(
@@ -26,12 +27,20 @@ class CardTest extends TestCase
                     'title' => 'Header Title',
                     'subtitle' => 'Header Subtitle',
                     'imageUrl' => 'Header Image URL',
-                    'imageStyle' => 'IMAGE',
+                    'imageType' => 'CIRCLE',
+                    'altText' => 'Avatar',
                 ],
                 'sections' => [],
             ],
             $card->toArray()
         );
+    }
+
+    public function test_it_supports_card_id()
+    {
+        $card = Card::make()->id('custom-card-id');
+
+        $this->assertEquals('custom-card-id', $card->getCardId());
     }
 
     public function test_it_rejects_non_sections()
@@ -42,18 +51,18 @@ class CardTest extends TestCase
         Card::create(new stdClass);
     }
 
-    public function test_it_can_add_sections()
+    public function test_it_can_add_sections_and_closures()
     {
         $sectionA = Section::create()->header('Section A');
-        $sectionB = Section::create()->header('Section B');
 
-        $card = Card::create([$sectionA, $sectionB]);
+        $card = Card::create($sectionA)
+            ->section(fn (Section $s) => $s->header('Section B'));
 
         $this->assertEquals(
             [
                 'sections' => [
-                    $sectionA,
-                    $sectionB,
+                    ['header' => 'Section A', 'widgets' => []],
+                    ['header' => 'Section B', 'widgets' => []],
                 ],
             ],
             $card->toArray()
