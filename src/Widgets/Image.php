@@ -7,7 +7,7 @@ class Image extends AbstractWidget
     /**
      * Set the image url.
      */
-    public function imageUrl(string $url): Image
+    public function imageUrl(string $url): static
     {
         $this->payload['imageUrl'] = $url;
 
@@ -17,7 +17,7 @@ class Image extends AbstractWidget
     /**
      * Make the widget clickable through to the provided link.
      */
-    public function onClick(string $url): Image
+    public function onClick(string $url): static
     {
         $this->payload['onClick'] = [
             'openLink' => [

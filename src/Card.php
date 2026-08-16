@@ -115,10 +115,10 @@ class Card implements Arrayable
     {
         $actions = Arr::wrap($cardActions);
 
+        $this->guardOnlyInstancesOf(Components\CardAction::class, $actions);
+
         foreach ($actions as $action) {
-            if ($action instanceof Components\CardAction) {
-                $this->payload['cardActions'][] = $action->toArray();
-            }
+            $this->payload['cardActions'][] = $action->toArray();
         }
 
         return $this;

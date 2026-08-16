@@ -23,7 +23,7 @@ class Section implements Arrayable
     /**
      * Set the section header text.
      */
-    public function header(string $text): Section
+    public function header(string $text): static
     {
         $this->payload['header'] = $text;
 
@@ -35,7 +35,7 @@ class Section implements Arrayable
      *
      * @param  AbstractWidget|AbstractWidget[]  $widget
      */
-    public function widget($widget): Section
+    public function widget($widget): static
     {
         $widgets = Arr::wrap($widget);
 
@@ -159,7 +159,7 @@ class Section implements Arrayable
     /**
      * Add a Grid widget.
      */
-    public function grid(Widgets\Grid $grid): Section
+    public function grid(Widgets\Grid $grid): static
     {
         return $this->widget($grid);
     }
@@ -167,7 +167,7 @@ class Section implements Arrayable
     /**
      * Add a Carousel widget.
      */
-    public function carousel(Widgets\Carousel $carousel): Section
+    public function carousel(Widgets\Carousel $carousel): static
     {
         return $this->widget($carousel);
     }

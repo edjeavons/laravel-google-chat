@@ -12,7 +12,7 @@ class OverflowMenuItem implements Arrayable
     public function __construct(?string $text = null)
     {
         if ($text !== null) {
-            $this->text($text);
+            $this->textContent($text);
         }
     }
 
