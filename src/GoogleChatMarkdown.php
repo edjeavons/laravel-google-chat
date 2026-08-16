@@ -60,7 +60,7 @@ class GoogleChatMarkdown
         }
 
         if ($node instanceof Heading) {
-            return '*'.$this->renderChildren($node, $listDepth).'*';
+            return '**'.$this->renderChildren($node, $listDepth).'**';
         }
 
         if ($node instanceof BlockQuote) {
@@ -99,7 +99,7 @@ class GoogleChatMarkdown
         }
 
         if ($node instanceof Strong) {
-            return '*'.$this->renderChildren($node, $listDepth).'*';
+            return '**'.$this->renderChildren($node, $listDepth).'**';
         }
 
         if ($node instanceof Emphasis) {
@@ -148,10 +148,14 @@ class GoogleChatMarkdown
             }
 
             $content = [];
+            $nestedLists = [];
+
             foreach ($item->children() as $child) {
-                $content[] = $child instanceof ListBlock
-                    ? $this->renderList($child, $depth + 1)
-                    : $this->render($child, $depth + 1);
+                if ($child instanceof ListBlock) {
+                    $nestedLists[] = $this->renderList($child, $depth + 1);
+                } else {
+                    $content[] = $this->render($child, $depth);
+                }
             }
 
             $prefix = $list->getListData()->type === ListBlock::TYPE_BULLET ? '* ' : $number++.'. ';
@@ -161,6 +165,10 @@ class GoogleChatMarkdown
 
             foreach ($lines as $line) {
                 $items[] = $indent.'    '.$line;
+            }
+
+            foreach ($nestedLists as $nestedList) {
+                $items[] = $nestedList;
             }
         }
 

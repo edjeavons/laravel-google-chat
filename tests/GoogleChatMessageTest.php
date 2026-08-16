@@ -68,9 +68,9 @@ return true;
 MARKDOWN;
 
         $this->assertSame(<<<'CHAT'
-*Release notes*
+**Release notes**
 
-*Ready* for _production_ with ~no known issues~.
+**Ready** for _production_ with ~no known issues~.
 
 * [x] Tests pass
 * [ ] Deploy
@@ -83,6 +83,60 @@ MARKDOWN;
 ```
 return true;
 ```
+CHAT, GoogleChatMarkdown::convert($markdown));
+    }
+
+    public function test_it_converts_release_notes_with_headings_paragraphs_and_lists()
+    {
+        $markdown = <<<'MARKDOWN'
+## Summary
+
+This release improves background processing.
+
+## Updates
+
+- **Change:** Refresh the list view.
+- **Change:** Improve the message layout.
+
+## Contributors
+
+- Jane Doe
+- John Smith
+MARKDOWN;
+
+        $this->assertSame(<<<'CHAT'
+**Summary**
+
+This release improves background processing.
+
+**Updates**
+
+* **Change:** Refresh the list view.
+* **Change:** Improve the message layout.
+
+**Contributors**
+
+* Jane Doe
+* John Smith
+CHAT, GoogleChatMarkdown::convert($markdown));
+    }
+
+    public function test_it_converts_nested_lists_with_consistent_indentation()
+    {
+        $markdown = <<<'MARKDOWN'
+- Item 1
+  - Subitem 1.1
+    - Deep item 1.1.1
+  - Subitem 1.2
+- Item 2
+MARKDOWN;
+
+        $this->assertSame(<<<'CHAT'
+* Item 1
+    * Subitem 1.1
+        * Deep item 1.1.1
+    * Subitem 1.2
+* Item 2
 CHAT, GoogleChatMarkdown::convert($markdown));
     }
 
@@ -112,7 +166,7 @@ CHAT, GoogleChatMarkdown::convert($markdown));
     {
         $message = GoogleChatMessage::create('Merged: ')->markdown('**Ready**');
 
-        $this->assertSame(['text' => 'Merged: *Ready*'], $message->toArray());
+        $this->assertSame(['text' => 'Merged: **Ready**'], $message->toArray());
     }
 
     public function test_it_creates_lines()
