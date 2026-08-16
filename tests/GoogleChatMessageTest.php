@@ -158,7 +158,7 @@ API | Ready
 
 Architecture (https://example.com/architecture.png)
 
-Highlighted
+<mark>Highlighted</mark>
 CHAT, GoogleChatMarkdown::convert($markdown));
     }
 

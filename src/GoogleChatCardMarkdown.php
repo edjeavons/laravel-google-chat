@@ -32,10 +32,10 @@ use League\CommonMark\Node\Inline\Text;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Parser\MarkdownParser;
 
-class GoogleChatMarkdown
+class GoogleChatCardMarkdown
 {
     /**
-     * Convert GitHub-Flavoured Markdown to the formatting syntax supported by Google Chat text messages.
+     * Convert GitHub-Flavoured Markdown to the HTML formatting syntax supported by Google Chat card widgets.
      */
     public static function convert(string $markdown): string
     {
@@ -46,36 +46,36 @@ class GoogleChatMarkdown
         return (new static)->render(new MarkdownParser($environment)->parse($markdown));
     }
 
-    private function render(Node $node, int $listDepth = 0): string
+    private function render(Node $node): string
     {
         if ($node instanceof Document) {
-            return trim(implode("\n\n", array_filter(array_map(
+            return trim(implode('<br><br>', array_filter(array_map(
                 fn (Node $child) => $this->render($child),
                 iterator_to_array($node->children())
             ), fn (string $content) => $content !== '')));
         }
 
         if ($node instanceof Paragraph) {
-            return $this->renderChildren($node, $listDepth);
+            return $this->renderChildren($node);
         }
 
         if ($node instanceof Heading) {
-            return '**'.$this->renderChildren($node, $listDepth).'**';
+            return '<b>'.$this->renderChildren($node).'</b>';
         }
 
         if ($node instanceof BlockQuote) {
-            return implode("\n", array_map(
-                fn (string $line) => '> '.$line,
-                explode("\n", $this->renderChildren($node, $listDepth))
+            return implode('<br>', array_map(
+                fn (string $line) => '&gt; '.$line,
+                explode("\n", $this->renderChildren($node))
             ));
         }
 
         if ($node instanceof FencedCode || $node instanceof IndentedCode) {
-            return "```\n".rtrim($node->getLiteral())."\n```";
+            return '<pre>'.htmlspecialchars(rtrim($node->getLiteral()), ENT_NOQUOTES).'</pre>';
         }
 
         if ($node instanceof ListBlock) {
-            return $this->renderList($node, $listDepth);
+            return $this->renderList($node);
         }
 
         if ($node instanceof Table) {
@@ -91,56 +91,56 @@ class GoogleChatMarkdown
         }
 
         if ($node instanceof Text) {
-            return $this->escape($node->getLiteral());
+            return htmlspecialchars($node->getLiteral(), ENT_NOQUOTES);
         }
 
         if ($node instanceof Newline) {
-            return "\n";
+            return '<br>';
         }
 
         if ($node instanceof Strong) {
-            return '**'.$this->renderChildren($node, $listDepth).'**';
+            return '<b>'.$this->renderChildren($node).'</b>';
         }
 
         if ($node instanceof Emphasis) {
-            return '_'.$this->renderChildren($node, $listDepth).'_';
+            return '<i>'.$this->renderChildren($node).'</i>';
         }
 
         if ($node instanceof Strikethrough) {
-            return '~'.$this->renderChildren($node, $listDepth).'~';
+            return '<s>'.$this->renderChildren($node).'</s>';
         }
 
         if ($node instanceof Code) {
-            return '`'.$node->getLiteral().'`';
+            return '<code>'.htmlspecialchars($node->getLiteral(), ENT_NOQUOTES).'</code>';
         }
 
         if ($node instanceof Link) {
-            return '<'.$node->getUrl().'|'.$this->renderChildren($node, $listDepth).'>';
+            return '<a href="'.$node->getUrl().'">'.$this->renderChildren($node).'</a>';
         }
 
         if ($node instanceof Image) {
-            return $this->renderChildren($node, $listDepth).' ('.$node->getUrl().')';
+            return '<a href="'.$node->getUrl().'">'.$this->renderChildren($node).'</a>';
         }
 
         if ($node instanceof TaskListItemMarker) {
-            return $node->isChecked() ? '[x]' : '[ ]';
+            return $node->isChecked() ? '[x] ' : '[ ] ';
         }
 
-        return $this->renderChildren($node, $listDepth);
+        return $this->renderChildren($node);
     }
 
-    private function renderChildren(Node $node, int $listDepth): string
+    private function renderChildren(Node $node): string
     {
         return implode('', array_map(
-            fn (Node $child) => $this->render($child, $listDepth),
+            fn (Node $child) => $this->render($child),
             iterator_to_array($node->children())
         ));
     }
 
-    private function renderList(ListBlock $list, int $depth): string
+    private function renderList(ListBlock $list): string
     {
+        $tag = $list->getListData()->type === ListBlock::TYPE_BULLET ? 'ul' : 'ol';
         $items = [];
-        $number = $list->getListData()->start ?? 1;
 
         foreach ($list->children() as $item) {
             if (! $item instanceof ListItem) {
@@ -148,31 +148,14 @@ class GoogleChatMarkdown
             }
 
             $content = [];
-            $nestedLists = [];
-
             foreach ($item->children() as $child) {
-                if ($child instanceof ListBlock) {
-                    $nestedLists[] = $this->renderList($child, $depth + 1);
-                } else {
-                    $content[] = $this->render($child, $depth);
-                }
+                $content[] = $this->render($child);
             }
 
-            $prefix = $list->getListData()->type === ListBlock::TYPE_BULLET ? '* ' : $number++.'. ';
-            $lines = explode("\n", implode("\n", array_filter($content)));
-            $indent = str_repeat('    ', $depth);
-            $items[] = $indent.$prefix.ltrim((string) array_shift($lines));
-
-            foreach ($lines as $line) {
-                $items[] = $indent.'    '.$line;
-            }
-
-            foreach ($nestedLists as $nestedList) {
-                $items[] = $nestedList;
-            }
+            $items[] = '<li>'.implode('', $content).'</li>';
         }
 
-        return implode("\n", $items);
+        return '<'.$tag.'>'.implode('', $items).'</'.$tag.'>';
     }
 
     private function renderTable(Table $table): string
@@ -192,22 +175,13 @@ class GoogleChatMarkdown
                 $cells = [];
                 foreach ($row->children() as $cell) {
                     if ($cell instanceof TableCell) {
-                        $cells[] = $this->renderChildren($cell, 0);
+                        $cells[] = $this->renderChildren($cell);
                     }
                 }
                 $rows[] = implode(' | ', $cells);
             }
         }
 
-        return implode("\n", $rows);
-    }
-
-    private function escape(string $text): string
-    {
-        return str_replace(
-            ['\\', '*', '_', '~', '`', '<', '>', '|'],
-            ['\\\\', '\\*', '\\_', '\\~', '\\`', '\\<', '\\>', '\\|'],
-            $text
-        );
+        return implode('<br>', $rows);
     }
 }

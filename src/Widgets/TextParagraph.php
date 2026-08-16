@@ -3,6 +3,7 @@
 namespace NotificationChannels\GoogleChat\Widgets;
 
 use NotificationChannels\GoogleChat\Enums\TextSyntax;
+use NotificationChannels\GoogleChat\GoogleChatCardMarkdown;
 
 class TextParagraph extends AbstractWidget
 {
@@ -27,12 +28,11 @@ class TextParagraph extends AbstractWidget
     }
 
     /**
-     * Append Markdown content and set textSyntax to MARKDOWN.
+     * Append Markdown content converted to Google Chat card formatting.
      */
     public function markdown(string $message): static
     {
-        $this->text($message);
-        $this->textSyntax(TextSyntax::MARKDOWN);
+        $this->text(GoogleChatCardMarkdown::convert($message));
 
         return $this;
     }

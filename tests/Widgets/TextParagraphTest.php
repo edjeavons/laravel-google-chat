@@ -169,15 +169,59 @@ class TextParagraphTest extends TestCase
         );
     }
 
-    public function test_it_appends_markdown_with_markdown_text_syntax()
+    public function test_it_appends_converted_markdown()
     {
         $widget = TextParagraph::create()->markdown('* **Feature:** Add new item');
 
         $this->assertEquals(
             [
                 'textParagraph' => [
-                    'text' => '* **Feature:** Add new item',
-                    'textSyntax' => 'MARKDOWN',
+                    'text' => '<ul><li><b>Feature:</b> Add new item</li></ul>',
+                ],
+            ],
+            $widget->toArray()
+        );
+    }
+
+    public function test_it_converts_full_markdown_to_card_html()
+    {
+        $markdown = <<<'MARKDOWN'
+## Summary
+
+This update improves reliability.
+
+## Updates
+
+- **Add:** New feature
+- **Fix:** Bug fix
+MARKDOWN;
+
+        $widget = TextParagraph::create()->markdown($markdown);
+
+        $this->assertEquals(
+            [
+                'textParagraph' => [
+                    'text' => '<b>Summary</b><br><br>This update improves reliability.<br><br><b>Updates</b><br><br><ul><li><b>Add:</b> New feature</li><li><b>Fix:</b> Bug fix</li></ul>',
+                ],
+            ],
+            $widget->toArray()
+        );
+    }
+
+    public function test_it_preserves_user_provided_html()
+    {
+        $markdown = <<<'MARKDOWN'
+## Alert <font color="#ff0000">Critical</font>
+
+<u>Underlined</u> text with <a href="https://example.com">custom link</a>.
+MARKDOWN;
+
+        $widget = TextParagraph::create()->markdown($markdown);
+
+        $this->assertEquals(
+            [
+                'textParagraph' => [
+                    'text' => '<b>Alert <font color="#ff0000">Critical</font></b><br><br><u>Underlined</u> text with <a href="https://example.com">custom link</a>.',
                 ],
             ],
             $widget->toArray()
