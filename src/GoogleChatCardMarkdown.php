@@ -43,7 +43,7 @@ class GoogleChatCardMarkdown
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension(new GithubFlavoredMarkdownExtension);
 
-        return (new static)->render(new MarkdownParser($environment)->parse($markdown));
+        return (new static)->render((new MarkdownParser($environment))->parse($markdown));
     }
 
     private function render(Node $node): string
